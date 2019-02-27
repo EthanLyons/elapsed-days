@@ -4,35 +4,55 @@ import com.sun.org.apache.bcel.internal.generic.DASTORE;
 
 public class DateOnly {
 
-
-
-  final int STANDARD_DAYS_YEAR = 365;
+  private static final int DAYS_PER_YEAR = 365;
   final int STANDARD_MONTHS_YEAR = 12;
   final int STANDARD = 1;
-  final int GROUND_ZERO = 1970;
+  private static final int BASELINE_YEAR = 1970;
   final int MONTHS_PER_YEAR = 12;
   private static final int[] DAYS_PER_MONTHS = {31,28,31,30,31,30,31,31,30,31,30,31};
-  private static int yearDays;
+  private static final int BASELINE_LEAP_DAYS
+  private static int dayOfYear;
+
+
+  public static int elapsedDays(int year, int month, int day) {
+
+    return daysElapsedFromBaseline(year) + dayOfYear(year, month, day);
+
+  }
+
   private static boolean isLeapYear(int year) {
 
     return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
 
   }
-  public static int daysPerMonth(int year, int month) {
 
 
-    if (! isLeapYear(year) || month != 1) {
-      return DAYS_PER_MONTHS[month];
-    }
-
-    return DAYS_PER_MONTHS[month] + 1;
-
+  public static int daysInMonth(int year, int month) {
+    return DAYS_PER_MONTHS[month] + ((month == 1 && isLeapYear(year)) ? 1 : 0);
   }
 
-  public static int daysPerYear(int month)  {
+  private static int leapDaysFromZero(int year) {
+    return 1 +
+        + Math.floorDiv(year -1, 4)
+        - Math.floorDiv(year - 1, 100)
+        +Math.floorDiv(year - 1, 400);
+  }
 
-    for (int i = 0; i < MONTHS_PER_YEAR; i++)  {
-      yearDays += DAYS_PER_MONTHS[month];
+  private static int leapDaysFromBaseline(int year) {
+    return leapDaysFromZero(year) - BASELINE_LEAP_DAYS;
+  }
+
+  private static int daysElapsedFromBaseline(int year)  {
+    return DAYS_PER_YEAR * (year - BASELINE_YEAR) + leapDaysFromBaseline(year);
+  }
+
+
+
+
+  public static int daysOfYear(int year, int month, int day)  {
+    int count = 0;
+    for (int i = 0; i < month; i++)  {
+      count += daysInMonth(year, i);
       DAYS_PER_MONTHS[0] += 1;
     }
     return yearDays;
@@ -48,20 +68,6 @@ public class DateOnly {
   }
 
 
-  public static int elapsedDays(int year, int month, int day) {
 
-
-
-
-    final int STANDARD_DAYS_YEAR = 365;
-    final int STANDARD_MONTHS_YEAR = 12;
-    final int GROUND_ZERO = 1970;
-    int days = 0;
-    int months = 0;
-    days = (year - GROUND_ZERO) * yearDays;
-    months = (year - GROUND_ZERO) * DAYS_PER_MONTHS[month];
-    System.out.println(days);
-    return days;
-  }
 
 }
